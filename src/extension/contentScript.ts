@@ -1,9 +1,9 @@
 declare const chrome: any;
 
-const renderPortal = () => {
-  let calendarScript = chrome.runtime.getURL("js/content.js");
+const injectScript = () => {
+  let contentScript = chrome.runtime.getURL("js/content.js");
   createScriptInject({
-    src: calendarScript
+    src: contentScript
   });
 };
 
@@ -16,4 +16,4 @@ const createScriptInject = (props: any) => {
   document.body.appendChild(script);
 };
 
-if (window.location.href.includes("/k/")) renderPortal();
+if (window.location.href.includes("/k/")) injectScript();
