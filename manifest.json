@@ -1,26 +1,23 @@
 {
-  "manifest_version": 2,
-  "name": "aPhoto",
-  "description": "You can attach files from local to kintone comment",
-  "version": "1.0.0",
-
-  "background": {
-    "scripts": ["js/background.js"]
+  "manifest_version": 1,
+  "version": 1,
+  "type": "APP",
+  "name": {
+    "ja": "aPhoto",
+    "en": "aPhoto",
+    "zh": "aPhoto"
   },
-  "icons": {
-    "64": "./images/64.png"
+  "description": {
+    "ja": "You can attach files from local to kintone comment",
+    "en": "You can attach files from local to kintone comment",
+    "zh": "You can attach files from local to kintone comment"
   },
-  "permissions": [
-    "activeTab",
-    "https://*.kintone.com/*",
-    "webRequest",
-    "webRequestBlocking"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "js": ["js/contentScript.js"]
-    }
-  ],
-  "web_accessible_resources": ["js/content.js"]
+  "icon": "public/images/64.png",
+  "homepage_url": {
+  },
+  "desktop": {
+    "js": [
+      "build/plugin/index.js"
+    ]
+  }
 }

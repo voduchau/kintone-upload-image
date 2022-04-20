@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf build && webpack --mode=production",
+    "build": "npm run build:extension && npm run build:plugin",
+    "build:extension": "rimraf build && webpack --mode=production",
+    "build:plugin": "kintone-plugin-packer ./ --out build/plugin/aPhoto.zip --ppk ./src/plugin/bdigeobjipocpfgcekdjeofckgephdgd.ppk && rimraf build/plugin/index.js",
     "dev": "webpack --watch --mode=development"
   },
   "keywords": [],
