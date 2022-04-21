@@ -3,7 +3,7 @@ import "@fortawesome/fontawesome-free/js/fontawesome";
 import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
 
-const imgUrl = "https://haula.kintone.com/k/api/record/download.do/-/unnamed.jpeg?app=254&thumbnail=false&field=6366029&detectType=true&record=1&row=24230&id=20832&hash=372d24f2112833d6b49b5f75597a235eb840b615&revision=2&.jpeg&w=150&h=150&flag=SHRINK";
+const imgUrl = "https://haula.kintone.com/k/api/record/download.do/-/code.png?app=254&thumbnail=false&field=6366029&detectType=true&record=2&row=24232&id=20873&hash=190f3738bf118a0d7c7f9a595e12f083e1f6a8ba&revision=2&.png&w=150&h=150&flag=SHRINK";
 
 export const renderUI = () => {
   const textAriaElement = document.querySelector(
