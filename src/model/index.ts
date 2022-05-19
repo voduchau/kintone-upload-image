@@ -3,7 +3,7 @@ import "@fortawesome/fontawesome-free/js/fontawesome";
 import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
 
-const imgUrl = "https://haula.kintone.com/k/api/record/download.do/-/code.png?app=254&thumbnail=false&field=6366029&detectType=true&record=2&row=24232&id=20873&hash=190f3738bf118a0d7c7f9a595e12f083e1f6a8ba&revision=2&.png&w=150&h=150&flag=SHRINK";
+const imgUrl = "https://www.w3schools.com/tags/img_girl.jpg";
 
 export const renderUI = () => {
   const textAriaElement = document.querySelector(
@@ -37,6 +37,11 @@ export const renderUI = () => {
       img.style.maxWidth = "85%";
       const editorEl = document.querySelector(".ocean-editor-seamless");
       editorEl.appendChild(img);
+
+      // event click preview image
+      img.addEventListener("click", () => {
+        previewImage();
+      });
     };
 
     const toolBarEl = document.querySelector(".goog-toolbar-horizontal");
@@ -44,3 +49,37 @@ export const renderUI = () => {
     toolBarEl.appendChild(button);
   });
 };
+
+function previewImage() {
+  const lightBoxDiv = document.querySelector(
+    ".lightbox-target"
+  ) as HTMLDivElement;
+
+  // If existed -> display it with new src.
+  if (lightBoxDiv) {
+    lightBoxDiv.style.display = "flex";
+    const imgEl = document.getElementById("img-preview") as HTMLImageElement;
+    imgEl.src = imgUrl;
+  } else {
+    // If not -> create preview element.
+    const lightBoxDiv = document.createElement("div");
+    lightBoxDiv.classList.add("lightbox-target");
+
+    const imgPreviewEl = document.createElement("img");
+    imgPreviewEl.id = "img-preview";
+    imgPreviewEl.src = imgUrl;
+
+    // don't close preview when click in image.
+    imgPreviewEl.addEventListener("click", e => {
+      e.stopPropagation();
+    });
+
+    // close preview when click outside of image.
+    lightBoxDiv.addEventListener("click", () => {
+      lightBoxDiv.style.display = "none";
+    });
+
+    lightBoxDiv.appendChild(imgPreviewEl);
+    document.body.appendChild(lightBoxDiv);
+  }
+}
