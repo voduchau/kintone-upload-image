@@ -5,6 +5,7 @@ import "./index.css";
 import axios from "../axios";
 
 export const renderUI = () => {
+  handlePreviewImageInComment();
   const textAriaElement = document.querySelector(
     ".ocean-ui-comments-commentform-textarea"
   );
@@ -43,23 +44,54 @@ export const renderUI = () => {
   });
 };
 
+function handlePreviewImageInComment() {
+  const imageInComment = document.querySelectorAll(
+    ".user-token-gaia-ui-slideshow-thumbnail"
+  );
+  imageInComment.forEach((img: HTMLImageElement) => {
+    img.addEventListener("click", () => {
+      previewImage(img.src.replace(/&thumbnail=true/g, ""));
+    });
+  });
+}
+
 const handlePreviewAndUploadImage = async (file: any) => {
   var reader = new FileReader();
-  reader.onload = function (event) {
-    var fileValue = event.target.result.toString();
-    const imageEl = createImgElement(fileValue);
-    const editorEl = document.querySelector(".ocean-editor-seamless");
-    editorEl.appendChild(imageEl);
 
-    // event click preview image
-    imageEl.addEventListener("click", () => {
-      previewImage(fileValue);
-    });
+  reader.onload = function (event) {
+    // var fileValue = event.target.result.toString();
+
     getFileKeyAfterUpload(file).then(res => {
-      uploadImageToKintone(res.fileKey);
+      uploadImageToKintone(res.fileKey).then((response: any) => {
+        // getFileKeyFromRecordid(response);
+        // create iframe file-image-container-gaia
+        const iframeElement = document.createElement("iframe");
+        iframeElement.src = `https://vo-hau.kintone.com/k/25/show#record=${response.data.id}`;
+        document.body.appendChild(iframeElement).onload = () => {
+          setTimeout(() => {
+            const imgEl = document
+              .querySelector("iframe")
+              .contentWindow.document.querySelector(
+                ".file-image-container-gaia img"
+              ) as HTMLImageElement;
+
+            // Create image element and add to editor
+            const imageEl = createImgElement(imgEl.src);
+            const editorEl = document.querySelector(".ocean-editor-seamless");
+            editorEl.appendChild(imageEl);
+
+            // event click preview image
+            imageEl.addEventListener("click", () => {
+              previewImage(reader.result);
+            });
+          }, 2000);
+        };
+      });
     });
   };
-  reader.readAsDataURL(file);
+  if (file) {
+    reader.readAsDataURL(file);
+  }
 };
 
 function createImgElement(fileValue: string) {
@@ -71,7 +103,7 @@ function createImgElement(fileValue: string) {
   return imgEl;
 }
 
-function previewImage(src: string) {
+function previewImage(src: any) {
   const lightBoxDiv = document.querySelector(
     ".lightbox-target"
   ) as HTMLDivElement;
@@ -86,6 +118,13 @@ function previewImage(src: string) {
     const lightBoxDiv = document.createElement("div");
     lightBoxDiv.classList.add("lightbox-target");
 
+    const closeBtn = document.createElement("button");
+    closeBtn.classList.add("close-preview");
+    closeBtn.innerHTML = "<i class='fa-solid fa-xmark'></i>";
+    closeBtn.addEventListener("click", () => {
+      lightBoxDiv.style.display = "none";
+    });
+
     const imgPreviewEl = document.createElement("img");
     imgPreviewEl.id = "img-preview";
     imgPreviewEl.src = src;
@@ -97,27 +136,14 @@ function previewImage(src: string) {
 
     // close preview when click outside of image.
     lightBoxDiv.addEventListener("click", () => {
+      console.log("display none");
       lightBoxDiv.style.display = "none";
     });
 
     lightBoxDiv.appendChild(imgPreviewEl);
+    lightBoxDiv.appendChild(closeBtn);
     document.body.appendChild(lightBoxDiv);
   }
-}
-
-function getDataImage(event: Event) {
-  let reader;
-  let dataImg;
-  if ((event.target as any).files && (event.target as any).files[0]) {
-    reader = new FileReader();
-
-    reader.onload = function (e) {
-      dataImg = e.target.result;
-    };
-
-    reader.readAsDataURL((event.target as any).files[0]);
-  }
-  return dataImg;
 }
 
 export function uploadImageToKintone(fileKey: any) {
@@ -143,10 +169,10 @@ export function uploadImageToKintone(fileKey: any) {
     axios
       .post("/k/v1/record.json", body)
       .then(function (response: any) {
-        console.log(response, "res");
+        resolve(response);
       })
       .catch(function (error: any) {
-        console.log(error);
+        reject(error);
       });
   });
 }
@@ -170,3 +196,31 @@ async function getFileKeyAfterUpload(file: File) {
   });
   return (await response) as Record<string, string>;
 }
+
+// BLOB TO DATA URL
+function dataURLtoBlob(dataurl: any) {
+  var arr = dataurl.split(","),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+
+//**blob to dataURL**
+function blobToDataURL(blob: any, callback: any) {
+  var a = new FileReader();
+  a.onload = function (e) {
+    callback(e.target.result);
+  };
+  a.readAsDataURL(blob);
+}
+
+//test:
+var blob = dataURLtoBlob("data:text/plain;base64,YWFhYWFhYQ==");
+blobToDataURL(blob, function (dataurl: any) {
+  console.log(dataurl);
+});
