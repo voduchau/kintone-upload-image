@@ -3,15 +3,16 @@
   "name": "aPhoto",
   "description": "You can attach files from local to kintone comment",
   "version": "1.0.0",
-
   "background": {
     "scripts": ["js/background.js"]
   },
   "icons": {
     "64": "./images/64.png"
   },
+  "options_page": "./js/config.html",
   "permissions": [
     "activeTab",
+    "storage",
     "https://*.kintone.com/*",
     "webRequest",
     "webRequestBlocking"

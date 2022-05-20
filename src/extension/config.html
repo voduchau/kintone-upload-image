@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>aPhoto Configuration</title>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+</head>
+<body>
+
+  <div class="container"><h3>Connect to the kintone or Imgur API</h2></div>
+<hr/>
+
+<div class="alert alert-success" role="alert" style="display: none; margin: 10px 0px; text-align: center;">
+  Your configuration has changed
+</div>
+<div id="exTab2" style="border:  1px solid #ccc;border-radius: 8px;padding: 15px;margin-bottom: 20px;" class="container">
+<ul class="nav nav-tabs">
+			<li class="active">
+        <a  href="#1" data-toggle="tab">kintone</a>
+			</li>
+			<li><a href="#2" data-toggle="tab">imgur</a>
+		</ul>
+
+			<div class="tab-content">
+			  <div class="tab-pane active" id="1">
+          <form class="form-horizontal" style="margin: 20px">
+            <div class="form-group">
+              <label for="inputEmail3" class="col-sm-2 control-label">App Id</label>
+              <div class="col-sm-10">
+                <input type="email" value="48" class="form-control" id="inputEmail3" placeholder="50">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="apiToken" class="col-sm-2 control-label">API Token</label>
+              <div class="col-sm-10">
+                <input type="text" value="ptKTCq.........uIgu4B" class="form-control" id="apiToken" placeholder="api token">
+              </div>
+            </div>
+          </form>
+				</div>
+				<div class="tab-pane" id="2">
+          <form class="form-horizontal" style="margin: 20px;">
+            <div class="form-group">
+              <label for="inputEmail3" class="col-sm-2 control-label">Client Id</label>
+              <div class="col-sm-10">
+                <input type="email" value="	027fcc9f94bc36d" class="form-control" id="inputEmail3" placeholder="027fcc9f94bc36d">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="clientSecret" class="col-sm-2 control-label">Client Secret</label>
+              <div class="col-sm-10">
+                <input type="text" value="kiqpna.........ubapxt" class="form-control" id="clientSecret" placeholder="api token">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputEmail3" class="col-sm-2 control-label"></label>
+              <div class="col-sm-10"> To use Imgur's API commercially, you must first register your application <a target="_blank" href="https://api.imgur.com/oauth2/addclient">at here</a></div>
+            </div>
+          </form>
+				</div>
+			</div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+      <button type="button" class="btn btn-danger">Cancel</button>
+    </div>
+  </div>
+
+  <script src="bootstrap/jquery.min.js"></script>
+	<script src="bootstrap/bootstrap.min.js"></script>
+  <script src="option.js"></script>
+</body>
+</html>

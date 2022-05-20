@@ -53,6 +53,18 @@ module.exports = [
         {
           from: path.resolve("src/extension/manifest.json"),
           to: path.resolve("build/extension/")
+        },
+        {
+          from: path.resolve("src/extension/bootstrap"),
+          to: path.resolve("build/extension/js/bootstrap")
+        },
+        {
+          from: path.resolve("src/extension/option.js"),
+          to: path.resolve("build/extension/js/")
+        },
+        {
+          from: path.resolve("src/extension/config.html"),
+          to: path.resolve("build/extension/js/")
         }
       ]),
       new ExtensionReloader({
