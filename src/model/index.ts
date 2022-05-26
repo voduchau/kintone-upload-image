@@ -3,13 +3,15 @@ import "@fortawesome/fontawesome-free/js/fontawesome";
 import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
 import axios from "../axios";
+import { Spinner } from "spin.js";
 
 export const renderUI = () => {
   handlePreviewImageInComment();
+  ObserverWhenPostCommnet();
+
   const textAriaElement = document.querySelector(
     ".ocean-ui-comments-commentform-textarea"
   );
-
   // event editor focus
   textAriaElement.addEventListener("focus", () => {
     const check = document.querySelector(".btn-choose");
@@ -59,14 +61,18 @@ const handlePreviewAndUploadImage = async (file: any) => {
   var reader = new FileReader();
 
   reader.onload = function (event) {
-    // var fileValue = event.target.result.toString();
+    const editor = document.querySelector(".ocean-editor-seamless");
+    const divWraperSpinner = document.createElement("div");
+    divWraperSpinner.classList.add("spinner-wrapper");
+    divWraperSpinner.style.width = "50px";
+    editor.appendChild(divWraperSpinner);
 
+    const spinner = addSpin();
     getFileKeyAfterUpload(file).then(res => {
       uploadImageToKintone(res.fileKey).then((response: any) => {
-        // getFileKeyFromRecordid(response);
-        // create iframe file-image-container-gaia
         const iframeElement = document.createElement("iframe");
         iframeElement.src = `https://vo-hau.kintone.com/k/25/show#record=${response.data.id}`;
+        iframeElement.style.display = "none";
         document.body.appendChild(iframeElement).onload = () => {
           setTimeout(() => {
             const imgEl = document
@@ -79,6 +85,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
             const imageEl = createImgElement(imgEl.src);
             const editorEl = document.querySelector(".ocean-editor-seamless");
             editorEl.appendChild(imageEl);
+            spinner.stop();
 
             // event click preview image
             imageEl.addEventListener("click", () => {
@@ -136,7 +143,6 @@ function previewImage(src: any) {
 
     // close preview when click outside of image.
     lightBoxDiv.addEventListener("click", () => {
-      console.log("display none");
       lightBoxDiv.style.display = "none";
     });
 
@@ -224,3 +230,42 @@ var blob = dataURLtoBlob("data:text/plain;base64,YWFhYWFhYQ==");
 blobToDataURL(blob, function (dataurl: any) {
   console.log(dataurl);
 });
+
+function ObserverWhenPostCommnet() {
+  var target = document.querySelector(".itemlist-gaia");
+  var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      handlePreviewImageInComment();
+    });
+  });
+  var config = { attributes: true, childList: true, characterData: true };
+  observer.observe(target, config);
+}
+
+function addSpin() {
+  var opts = {
+    lines: 13, // The number of lines to draw
+    length: 38, // The length of each line
+    width: 17, // The line thickness
+    radius: 45, // The radius of the inner circle
+    scale: 0.2, // Scales overall size of the spinner
+    corners: 1, // Corner roundness (0..1)
+    speed: 1, // Rounds per second
+    rotate: 0, // The rotation offset
+    animation: "spinner-line-fade-quick", // The CSS animation name for the lines
+    direction: 1, // 1: clockwise, -1: counterclockwise
+    color: "black", // CSS color or array of colors
+    fadeColor: "transparent", // CSS color or array of colors
+    top: "50%", // Top position relative to parent
+    left: "50%", // Left position relative to parent
+    shadow: "0 0 1px transparent", // Box-shadow for the lines
+    zIndex: 2000000000, // The z-index (defaults to 2e9)
+    className: "spinner", // The CSS class to assign to the spinner
+    position: "absolute" // Element positioning
+  };
+
+  var target = document.querySelector(".spinner-wrapper") as HTMLElement;
+  var spinner = new Spinner(opts).spin(target);
+
+  return spinner;
+}
