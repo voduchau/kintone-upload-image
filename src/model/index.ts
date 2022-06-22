@@ -4,6 +4,7 @@ import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
 import axios from "../axios";
 import { Spinner } from "spin.js";
+import { KINTONE_BASE_URL, KINTONE_APP_ID, ATTACHMENT_CODE, TEXT_CODE } from "../constant"
 
 export const renderUI = () => {
   handlePreviewImageInComment();
@@ -71,7 +72,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
     getFileKeyAfterUpload(file).then(res => {
       uploadImageToKintone(res.fileKey).then((response: any) => {
         const iframeElement = document.createElement("iframe");
-        iframeElement.src = `https://vo-hau.kintone.com/k/25/show#record=${response.data.id}`;
+        iframeElement.src = `${KINTONE_BASE_URL}/k/${KINTONE_APP_ID}/show#record=${response.data.id}`;
         iframeElement.style.display = "none";
         document.body.appendChild(iframeElement).onload = () => {
           setTimeout(() => {
@@ -91,6 +92,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
             imageEl.addEventListener("click", () => {
               previewImage(reader.result);
             });
+            iframeElement.remove();
           }, 2000);
         };
       });
@@ -155,23 +157,7 @@ function previewImage(src: any) {
 export function uploadImageToKintone(fileKey: any) {
   return new kintone.Promise((resolve: any, reject: any) => {
     // config app to storage image on kintone here
-    var body = {
-      app: 25,
-      record: {
-        Text: {
-          value: "Sample"
-        },
-        Attachment: {
-          value: [
-            {
-              contentType: "text/plain",
-              fileKey: fileKey
-            }
-          ]
-        }
-      }
-    };
-
+    const body = getBodyParamsUploadKintone(fileKey, TEXT_CODE, ATTACHMENT_CODE)
     axios
       .post("/k/v1/record.json", body)
       .then(function (response: any) {
@@ -181,6 +167,26 @@ export function uploadImageToKintone(fileKey: any) {
         reject(error);
       });
   });
+}
+
+function getBodyParamsUploadKintone(fileKey: string, TEXT_CODE: string, ATTACHMENT_CODE: string ) {
+  let body = {
+    app: KINTONE_APP_ID,
+    record: {}
+  } as any;
+  body.record[TEXT_CODE]= {
+    value: "Sample"
+  };
+  body.record[ATTACHMENT_CODE]= {
+    value: [
+      {
+        contentType: "text/plain",
+        fileKey: fileKey
+      }
+    ]
+  }
+
+  return body;
 }
 
 async function getFileKeyAfterUpload(file: File) {
