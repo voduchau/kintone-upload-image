@@ -5,6 +5,7 @@ import "./index.css";
 import axios from "../axios";
 import { Spinner } from "spin.js";
 import { KINTONE_BASE_URL, KINTONE_APP_ID, ATTACHMENT_CODE, TEXT_CODE } from "../constant"
+import { KINTONE_SETTING } from "../../config";
 
 export const renderUI = () => {
   handlePreviewImageInComment();
@@ -30,7 +31,7 @@ export const renderUI = () => {
     const inputEl = document.createElement("input");
     inputEl.setAttribute("type", "file");
     inputEl.setAttribute("hidden", "true");
-    inputEl.setAttribute("accept", "image/png, image/gif, image/jpeg");
+    inputEl.setAttribute("accept", "image/png, image/gif, image/jpeg, .docx, .pdf, .doc");
 
     // Event file change
     inputEl.onchange = (event: Event) => {
@@ -59,8 +60,14 @@ function handlePreviewImageInComment() {
 }
 
 const handlePreviewAndUploadImage = async (file: any) => {
-  var reader = new FileReader();
+  const isMaxImgSize = isFileImage(file) && file.size > Math.pow(1024, 2)*KINTONE_SETTING.MAX_FILE_SIZE.IMG;
+  const isMaxFileSize = !isFileImage(file) && file.size > Math.pow(1024, 2)*KINTONE_SETTING.MAX_FILE_SIZE.FILE;
+  if(isMaxImgSize || isMaxFileSize) {
+    console.log('large file')
+    return;
+  }
 
+  var reader = new FileReader();
   reader.onload = function (event) {
     const editor = document.querySelector(".ocean-editor-seamless");
     const divWraperSpinner = document.createElement("div");
@@ -75,25 +82,40 @@ const handlePreviewAndUploadImage = async (file: any) => {
         iframeElement.src = `${KINTONE_BASE_URL}/k/${KINTONE_APP_ID}/show#record=${response.data.id}`;
         iframeElement.style.display = "none";
         document.body.appendChild(iframeElement).onload = () => {
-          setTimeout(() => {
-            const imgEl = document
-              .querySelector("iframe")
-              .contentWindow.document.querySelector(
-                ".file-image-container-gaia img"
-              ) as HTMLImageElement;
+          const editorEl = document.querySelector(".ocean-editor-seamless");
+          if(isFileImage(file)) {
+            setTimeout(() => {
+              const imgEl = document
+                .querySelector("iframe")
+                .contentWindow.document.querySelector(
+                  ".file-image-container-gaia img"
+                ) as HTMLImageElement;
 
-            // Create image element and add to editor
-            const imageEl = createImgElement(imgEl.src);
-            const editorEl = document.querySelector(".ocean-editor-seamless");
-            editorEl.appendChild(imageEl);
-            spinner.stop();
+              // Create image element and add to editor
+              const imageEl = createImgElement(imgEl.src);
+              editorEl.appendChild(imageEl);
+              spinner.stop();
 
-            // event click preview image
-            imageEl.addEventListener("click", () => {
-              previewImage(reader.result);
-            });
-            iframeElement.remove();
-          }, 2000);
+              // event click preview image
+              imageEl.addEventListener("click", () => {
+                previewImage(reader.result);
+              });
+              iframeElement.remove();
+            }, 1500);
+          }
+          else {
+            setTimeout(() => {
+              const aElement = document
+                .querySelector("iframe")
+                .contentWindow.document.querySelector(
+                  ".file-image-container-gaia"
+                ) as HTMLElement;
+
+              editorEl.appendChild(aElement.firstChild);
+              spinner.stop();
+              iframeElement.remove();
+            },1500)
+          }
         };
       });
     });
@@ -102,6 +124,10 @@ const handlePreviewAndUploadImage = async (file: any) => {
     reader.readAsDataURL(file);
   }
 };
+
+function isFileImage(file: File) {
+  return file && file['type'].split('/')[0] === 'image';
+}
 
 function createImgElement(fileValue: string) {
   const imgEl = document.createElement("img");
