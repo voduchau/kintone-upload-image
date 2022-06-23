@@ -12,6 +12,10 @@ $("#btnSave").click(function() {
     const clientSecretKey = formatKeySecret(clientSecret);
     $("#clientSecret").val(clientSecretKey);
   }
+
+  const provider = $("#provider").val();
+  setConfig({provider: provider});
+
   setTimeout(function (){$(".alert.alert-success").hide();}, 2000);
 })
 
@@ -22,3 +26,26 @@ function formatKeySecret(str) {
   const lastChar = str.slice(-6);
   return `${firstChar}.........${lastChar}`;
 }
+
+function setConfig(data) {
+  localStorage.setItem('aPhotoConfig', JSON.stringify(data));
+}
+
+function getConfig() {
+  const config = localStorage.getItem('aPhotoConfig');
+  return JSON.parse(config)
+}
+
+function init() {
+  const data = getConfig();
+  if(data) {
+    if(data.provider) setProvider(data.provider);
+  }
+}
+
+function setProvider(provider) {
+  if(!provider) return;
+  $("#provider").val(provider);
+}
+
+init();

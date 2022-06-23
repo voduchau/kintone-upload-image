@@ -15,3 +15,9 @@ export const getSettingUploadInfo = (provider: string) => {
     clientSecret: ""
   }
 }
+
+export const getConfig = () => {
+  const config = localStorage.getItem('aPhotoConfig');
+  if(config) return JSON.parse(config);
+  return null;
+}

@@ -4,7 +4,7 @@ import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
 import axios from "../axios";
 import { Spinner } from "spin.js";
-import { KINTONE_BASE_URL, KINTONE_APP_ID, ATTACHMENT_CODE, TEXT_CODE } from "../constant"
+import { KINTONE_BASE_URL, KINTONE_APP_ID, ATTACHMENT_FIELD_CODE, TEXT_FIELD_CODE } from "../constant"
 import { KINTONE_SETTING } from "../../config";
 
 export const renderUI = () => {
@@ -183,7 +183,7 @@ function previewImage(src: any) {
 export function uploadImageToKintone(fileKey: any) {
   return new kintone.Promise((resolve: any, reject: any) => {
     // config app to storage image on kintone here
-    const body = getBodyParamsUploadKintone(fileKey, TEXT_CODE, ATTACHMENT_CODE)
+    const body = getBodyParamsUploadKintone(fileKey, TEXT_FIELD_CODE, ATTACHMENT_FIELD_CODE)
     axios
       .post("/k/v1/record.json", body)
       .then(function (response: any) {
@@ -195,15 +195,15 @@ export function uploadImageToKintone(fileKey: any) {
   });
 }
 
-function getBodyParamsUploadKintone(fileKey: string, TEXT_CODE: string, ATTACHMENT_CODE: string ) {
+function getBodyParamsUploadKintone(fileKey: string, TEXT_FIELD_CODE: string, ATTACHMENT_FIELD_CODE: string ) {
   let body = {
     app: KINTONE_APP_ID,
     record: {}
   } as any;
-  body.record[TEXT_CODE]= {
+  body.record[TEXT_FIELD_CODE]= {
     value: "Sample"
   };
-  body.record[ATTACHMENT_CODE]= {
+  body.record[ATTACHMENT_FIELD_CODE]= {
     value: [
       {
         contentType: "text/plain",

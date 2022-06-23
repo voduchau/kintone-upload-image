@@ -1,5 +1,5 @@
-export const KINTONE_BASE_URL = "https://vo-hau.kintone.com";
-export const KINTONE_APP_ID = 25;
-export const KINTONE_TOKEN = "WpMBzvt2AdRb6aoVgZhNan99kcQuCP6599zFdvH9";
-export const ATTACHMENT_CODE = "Attachment"
-export const TEXT_CODE = "Text"
+export const KINTONE_BASE_URL = "https://haula.kintone.com";
+export const KINTONE_APP_ID = 254;
+export const KINTONE_TOKEN = "D6Jvc321fy9OGrEt7VXkOHqkxMt55yuzJlhNEe9V";
+export const ATTACHMENT_FIELD_CODE = "Attachment"
+export const TEXT_FIELD_CODE = "Text"
