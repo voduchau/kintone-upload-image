@@ -2,9 +2,14 @@ declare const kintone: any;
 import "@fortawesome/fontawesome-free/js/fontawesome";
 import "@fortawesome/fontawesome-free/js/solid";
 import "./index.css";
-import axios from "../axios";
+import { postImgToKintone, postImgToImgUr } from "../axios";
 import { Spinner } from "spin.js";
-import { KINTONE_BASE_URL, KINTONE_APP_ID, ATTACHMENT_CODE, TEXT_CODE } from "../constant"
+import {
+  KINTONE_BASE_URL,
+  KINTONE_APP_ID,
+  ATTACHMENT_CODE,
+  TEXT_CODE,
+} from "../constant";
 import { KINTONE_SETTING } from "../../config";
 
 export const renderUI = () => {
@@ -31,13 +36,16 @@ export const renderUI = () => {
     const inputEl = document.createElement("input");
     inputEl.setAttribute("type", "file");
     inputEl.setAttribute("hidden", "true");
-    inputEl.setAttribute("accept", "image/png, image/gif, image/jpeg, .docx, .pdf, .doc");
+    inputEl.setAttribute(
+      "accept",
+      "image/png, image/gif, image/jpeg, .docx, .pdf, .doc"
+    );
 
     // Event file change
     inputEl.onchange = (event: Event) => {
       const [file] = (event.target as any).files;
       if (file) {
-        handlePreviewAndUploadImage(file);
+        handlePreviewAndUploadImage(file, "imgur");
       }
     };
 
@@ -59,11 +67,30 @@ function handlePreviewImageInComment() {
   });
 }
 
-const handlePreviewAndUploadImage = async (file: any) => {
-  const isMaxImgSize = isFileImage(file) && file.size > Math.pow(1024, 2)*KINTONE_SETTING.MAX_FILE_SIZE.IMG;
-  const isMaxFileSize = !isFileImage(file) && file.size > Math.pow(1024, 2)*KINTONE_SETTING.MAX_FILE_SIZE.FILE;
-  if(isMaxImgSize || isMaxFileSize) {
-    console.log('large file')
+const appendImgPreviewToChatBox = (spinner: any, srcPreview: any) => {
+  const editorEl = document.querySelector(".ocean-editor-seamless");
+  const imageEl = createImgElement(srcPreview);
+  editorEl.appendChild(imageEl);
+  spinner.stop();
+
+  // event click preview image
+  imageEl.addEventListener("click", () => {
+    previewImage(srcPreview);
+  });
+};
+
+const handlePreviewAndUploadImage = async (
+  file: any,
+  type: "kintone" | "imgur"
+) => {
+  const isMaxImgSize =
+    isFileImage(file) &&
+    file.size > Math.pow(1024, 2) * KINTONE_SETTING.MAX_FILE_SIZE.IMG;
+  const isMaxFileSize =
+    !isFileImage(file) &&
+    file.size > Math.pow(1024, 2) * KINTONE_SETTING.MAX_FILE_SIZE.FILE;
+  if (isMaxImgSize || isMaxFileSize) {
+    console.log("large file");
     return;
   }
 
@@ -74,8 +101,23 @@ const handlePreviewAndUploadImage = async (file: any) => {
     divWraperSpinner.classList.add("spinner-wrapper");
     divWraperSpinner.style.width = "50px";
     editor.appendChild(divWraperSpinner);
-
     const spinner = addSpin();
+
+    // Upload to ImgUrl
+    if (type === "imgur") {
+      var formData = new FormData() as any;
+      formData.append("image", file, "name.jpg");
+      postImgToImgUr(formData)
+        .then((res: any) => {
+          appendImgPreviewToChatBox(spinner, res.data.data.link);
+        })
+        .catch((error: any) => {
+          console.log(error, "imgur error");
+        });
+      return;
+    }
+
+    // Upload to Kintone
     getFileKeyAfterUpload(file).then(res => {
       uploadImageToKintone(res.fileKey).then((response: any) => {
         const iframeElement = document.createElement("iframe");
@@ -83,7 +125,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
         iframeElement.style.display = "none";
         document.body.appendChild(iframeElement).onload = () => {
           const editorEl = document.querySelector(".ocean-editor-seamless");
-          if(isFileImage(file)) {
+          if (isFileImage(file)) {
             setTimeout(() => {
               const imgEl = document
                 .querySelector("iframe")
@@ -102,8 +144,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
               });
               iframeElement.remove();
             }, 1500);
-          }
-          else {
+          } else {
             setTimeout(() => {
               const aElement = document
                 .querySelector("iframe")
@@ -114,7 +155,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
               editorEl.appendChild(aElement.firstChild);
               spinner.stop();
               iframeElement.remove();
-            },1500)
+            }, 1500);
           }
         };
       });
@@ -126,7 +167,7 @@ const handlePreviewAndUploadImage = async (file: any) => {
 };
 
 function isFileImage(file: File) {
-  return file && file['type'].split('/')[0] === 'image';
+  return file && file["type"].split("/")[0] === "image";
 }
 
 function createImgElement(fileValue: string) {
@@ -180,37 +221,44 @@ function previewImage(src: any) {
   }
 }
 
-export function uploadImageToKintone(fileKey: any) {
+export async function uploadImageToKintone(fileKey: any) {
   return new kintone.Promise((resolve: any, reject: any) => {
     // config app to storage image on kintone here
-    const body = getBodyParamsUploadKintone(fileKey, TEXT_CODE, ATTACHMENT_CODE)
-    axios
-      .post("/k/v1/record.json", body)
-      .then(function (response: any) {
-        resolve(response);
+    const body = getBodyParamsUploadKintone(
+      fileKey,
+      TEXT_CODE,
+      ATTACHMENT_CODE
+    );
+    postImgToKintone("/k/v1/record.json", body)
+      .then((res: any) => {
+        resolve(res);
       })
-      .catch(function (error: any) {
+      .catch((error: any) => {
         reject(error);
       });
   });
 }
 
-function getBodyParamsUploadKintone(fileKey: string, TEXT_CODE: string, ATTACHMENT_CODE: string ) {
+function getBodyParamsUploadKintone(
+  fileKey: string,
+  TEXT_CODE: string,
+  ATTACHMENT_CODE: string
+) {
   let body = {
     app: KINTONE_APP_ID,
     record: {}
   } as any;
-  body.record[TEXT_CODE]= {
+  body.record[TEXT_CODE] = {
     value: "Sample"
   };
-  body.record[ATTACHMENT_CODE]= {
+  body.record[ATTACHMENT_CODE] = {
     value: [
       {
         contentType: "text/plain",
         fileKey: fileKey
       }
     ]
-  }
+  };
 
   return body;
 }
