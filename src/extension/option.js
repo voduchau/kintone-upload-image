@@ -1,3 +1,6 @@
+import axios from 'axios';
+const BASE_URL = 'https://rssnow.ga/api/aphoto/';
+
 $("#btnSave").click(function() {
   $(".alert.alert-success").show();
 
@@ -27,17 +30,22 @@ function formatKeySecret(str) {
   return `${firstChar}.........${lastChar}`;
 }
 
-function setConfig(data) {
-  localStorage.setItem('aPhotoConfig', JSON.stringify(data));
+async function setConfig(data) {
+  const url = `${BASE_URL}set_setting`;
+  const resp = await axios.post(url, {setting: data});
+  if(!resp || !resp.data || !resp.data.error) return false;
+  return true;
 }
 
-function getConfig() {
-  const config = localStorage.getItem('aPhotoConfig');
-  return JSON.parse(config)
+async function getConfig() {
+  const resp = await axios.get(BASE_URL);
+  if(!resp || !resp.data || !resp.data.setting) return null;
+  return resp.data.setting;
 }
 
-function init() {
-  const data = getConfig();
+async function init() {
+  const data = await getConfig();
+
   if(data) {
     if(data.provider) setProvider(data.provider);
   }

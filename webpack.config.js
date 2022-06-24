@@ -9,7 +9,8 @@ module.exports = [
     entry: {
       background: "./src/extension/background.ts",
       contentScript: "./src/extension/contentScript.ts",
-      content: "./src/extension/content.ts"
+      content: "./src/extension/content.ts",
+      option: "./src/extension/option.js"
     },
     output: {
       path: path.resolve("build/extension/js"),

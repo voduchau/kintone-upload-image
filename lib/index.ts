@@ -1,4 +1,7 @@
+import axios from 'axios';
 import { PROVIDER, KINTONE_APP_ID_DEFAULT, KINTONE_API_TOKEN_DEFAULT, KINTONE_SETTING } from "../config";
+
+const BASE_URL = 'https://rssnow.ga/api/aphoto/';
 
 export const getSettingUploadInfo = (provider: string) => {
   if(provider == PROVIDER.KINTONE) return {
@@ -16,8 +19,8 @@ export const getSettingUploadInfo = (provider: string) => {
   }
 }
 
-export const getConfig = () => {
-  const config = localStorage.getItem('aPhotoConfig');
-  if(config) return JSON.parse(config);
-  return null;
+export const getConfig = async() => {
+  const resp = await axios.get(BASE_URL);
+  if(!resp || !resp.data || !resp.data.setting) return null;
+  return resp.data.setting;
 }
