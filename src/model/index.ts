@@ -19,7 +19,6 @@ export const renderUI = async () => {
 
   let provider = PROVIDER.KINTONE;
   const config = await getConfig();
-  alert(JSON.stringify(config))
   if(config && config.provider) provider = config.provider;
 
   const textAriaElement = document.querySelector(
@@ -42,10 +41,17 @@ export const renderUI = async () => {
     const inputEl = document.createElement("input");
     inputEl.setAttribute("type", "file");
     inputEl.setAttribute("hidden", "true");
-    inputEl.setAttribute(
-      "accept",
-      "image/png, image/gif, image/jpeg, .docx, .pdf, .doc"
-    );
+    if(provider == PROVIDER.KINTONE) {
+      inputEl.setAttribute(
+        "accept",
+        "image/png, image/gif, image/jpeg, .docx, .pdf, .doc"
+      );
+    } else {
+      inputEl.setAttribute(
+        "accept",
+        "image/png, image/gif, image/jpeg"
+      );
+    }
 
     // Event file change
     inputEl.onchange = (event: Event) => {
@@ -178,7 +184,8 @@ function isFileImage(file: File) {
 
 function createImgElement(fileValue: string) {
   const imgEl = document.createElement("img");
-  imgEl.setAttribute("src", fileValue);
+  const url = fileValue.replace("&thumbnail=true&", "&thumbnail=false&")
+  imgEl.setAttribute("src", url);
   imgEl.classList.add("gaia-ui-slideshow-thumbnail");
   imgEl.style.maxWidth = "90%";
 
